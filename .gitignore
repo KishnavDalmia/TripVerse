@@ -3,10 +3,15 @@ logs
 *.log
 npm-debug.log*
 
+# Dependencies
 client/node_modules
 server/node_modules
+
+# Build output
 dist
 dist-ssr
+
+# Local env/config
 *.local
 
 # Editor directories and files
@@ -19,4 +24,3 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-biome.json
