@@ -7,6 +7,6 @@ const activitySchema = new mongoose.Schema({
     endTime: { type: Date, required: true },
 },{timestamps: true});
 
-const Itinerary = mongoose.model('Activity',activitySchema);
+const Activity = mongoose.model('Activity',activitySchema);
 
 export default Activity;

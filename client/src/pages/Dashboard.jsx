@@ -1,20 +1,57 @@
-import React from 'react'
-import TripClient from '@/components/TripClient'
-import {redirect} from 'next/navigation'
-import { getServerSession } from "next-auth/next"
-import { authOptions } from "@/lib/auth"
-import {getTrips, getPastTrips, getFutureTrips} from '@/lib/queries/trips'
+import { useEffect, useState } from "react";
+import TripClient from "../components/TripClient.jsx";
+import { useAuth } from "../context/AuthContext.jsx";
+import api from "./../services/api.js";
+import Navbar from "../components/Navbar.jsx";
 
-export default async function Page() {
-  const session = await getServerSession(authOptions)
-  console.log('Session:', JSON.stringify(session, null, 2));
-  if(!session?.user){
-    redirect('/login')
-  }
-  const trips = await getTrips(session.user.id);
-  const futureTrips = await getFutureTrips(session.user.id);
-  const pastTrips = await getPastTrips(session.user.id);
-  return (
-    <TripClient trips={trips} futureTrips={futureTrips} pastTrips={pastTrips} />
-  )
-}
+const Dashboard = () => {
+	const { user: currentUser } = useAuth();
+	const [trips, setTrips] = useState({
+		pastTrips: [],
+		currentTrips: [],
+		upcomingTrips: [],
+	});
+	useEffect(() => {
+		async function fetchTrips() {
+			if (!currentUser) return;
+			const userId = currentUser._id;
+			const pastRes = await api.get(`/api/trips/getPastTrips/${userId}`);
+			const currentRes = await api.get(
+				`/api/trips/getCurrentTrips/${userId}`,
+			);
+			const upcomingRes = await api.get(
+				`/api/trips/getUpcomingTrips/${userId}`,
+			);
+
+			setTrips({
+				pastTrips: pastRes || [],
+				currentTrips: currentRes || [],
+				upcomingTrips: upcomingRes || [],
+			});
+		}
+		fetchTrips();
+	}, [currentUser]);
+
+	const allTrips = [
+		...trips.pastTrips,
+		...trips.currentTrips,
+		...trips.upcomingTrips,
+	];
+
+	return (
+		<div className="min-h-screen bg-slate-50">
+			<Navbar />
+			<div className="py-6">
+				<TripClient
+					user={currentUser}
+					pastTrips={trips.pastTrips}
+					currentTrips={trips.currentTrips}
+					upcomingTrips={trips.upcomingTrips}
+					allTrips={allTrips}
+				/>
+			</div>
+		</div>
+	);
+};
+
+export default Dashboard;
