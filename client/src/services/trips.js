@@ -24,6 +24,11 @@ export const getTripById = async (tripId) => {
 	return await api.get(`/api/trips/getTripById/${tripId}`);
 };
 
+export const updateTrip = async (tripId, tripData) => {
+	return await api.put(`/api/trips/updateTrip/${tripId}`, tripData);
+};
+
+
 export const addMember = async (tripId, userId) => {
 	return await api.post("/api/trips/addMember", { tripId, userId });
 };

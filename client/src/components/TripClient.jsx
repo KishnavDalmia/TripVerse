@@ -35,7 +35,7 @@ const TripClient = ({
 			<div className="flex flex-wrap justify-start gap-12 my-8">
 				<CreateCard />
 				{seltrips.map((trip) => (
-					<TripCard key={trip.id} trip={trip} />
+					<TripCard key={trip._id} trip={trip} />
 				))}
 			</div>
 		</div>

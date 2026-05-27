@@ -24,7 +24,7 @@ export const register = async (req, res) => {
 			name: newUser.name,
 		},
 		process.env.ACCESS_TOKEN_SECRET,
-		{ expiresIn: "30s" },
+		{ expiresIn: "1d" },
 	);
 
 	const refreshToken = jwt.sign(
@@ -64,7 +64,7 @@ export const login = async (req, res) => {
 			name: user.name,
 		},
 		process.env.ACCESS_TOKEN_SECRET,
-		{ expiresIn: "30s" },
+		{ expiresIn: "1d" },
 	);
 
 	const refreshToken = jwt.sign(
@@ -109,7 +109,7 @@ export const refresh = async (req, res) => {
 				name: foundUser.name,
 			},
 			process.env.ACCESS_TOKEN_SECRET,
-			{ expiresIn: "30s" },
+			{ expiresIn: "1d" },
 		);
 
 		return res.json({ accessToken });
@@ -132,4 +132,26 @@ export const me = async (req, res) => {
 	const user = await User.findById(req.user.id).select("-password");
 	if (!user) return res.status(404).json({ message: "User not found" });
 	return res.json(user);
+};
+
+export const search = async (req, res) => {
+	const { query } = req.query;
+	if (!query) {
+		return res.json([]);
+	}
+	try {
+		const users = await User.find({
+			$or: [
+				{ name: { $regex: query, $options: "i" } },
+				{ username: { $regex: query, $options: "i" } },
+				{ email: { $regex: query, $options: "i" } },
+			],
+			_id: { $ne: req.user.id },
+		})
+			.select("name username email _id")
+			.limit(10);
+		return res.json(users);
+	} catch (error) {
+		return res.status(400).json({ message: error.message });
+	}
 };
